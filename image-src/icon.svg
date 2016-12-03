@@ -64,7 +64,7 @@
      id="layer1"
      transform="translate(0,-924.36218)">
     <path
-       style="fill:#a46c14;fill-opacity:1;stroke:none"
+       style="fill:#ff0000;fill-opacity:1;stroke:none"
        d="M 16,128 16,64 C 16,39.414548 47.90559,0 64,0 c 16.09441,0 48,39.414548 48,64 l 0,64 z"
        id="path3013"
        inkscape:connector-curvature="0"
