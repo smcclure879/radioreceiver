@@ -930,6 +930,14 @@ function Interface(fmRadio) {
     window.addEventListener('keypress', handleShortcut);
     fmRadio.setInterface(this);
     fmRadio.setOnError(showErrorWindow);
+
+    var q=new WaterfallC(waterfall);
+    debugger;
+    q.selfTest();
+    
+    function waterfallClick() {frequencyPlus()};
+    waterfall.addEventListener('click',waterfallClick);
+
     loadSettings(function() {
       presets.load(displayPresets);
       presets.addListener(displayPresets);
@@ -947,7 +955,6 @@ var radio = new RadioController();
 var iface = new Interface(radio);
 
 window.addEventListener('load', function() {
-  AuxWindows.resizeCurrentTo(500, 225);
   iface.attach();
 });
 

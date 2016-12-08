@@ -99,17 +99,39 @@ option {
   margin-top: 9px;
 }
 
+
+
+.annex {
+  position:absolute;
+  top:30px;
+  left:530px;
+  background-color: #109;
+}
+
+
+
+
+.waterfall {
+  width:512px;
+  height:512px;
+  background-color:pink;
+}
+
+
+
+
+
 .top {
   position: absolute;
   top: 30px;
   left: 5px;
-  width: 490px;
-  height: 135px;
+  width: 500px;
+  height: 235px;
 }
 
 .bottom {
   position: absolute;
-  width: 490px;
+  width: 500px;
   left: 5px;
   top: 165px;
   height: 55px;
@@ -443,4 +465,3 @@ option {
   bottom: 0;
   width: 70px;
 }
-
