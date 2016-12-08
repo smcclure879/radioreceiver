@@ -932,7 +932,6 @@ function Interface(fmRadio) {
     fmRadio.setOnError(showErrorWindow);
 
     var q=new WaterfallC(waterfall);
-    debugger;
     q.selfTest();
     
     function waterfallClick() {frequencyPlus()};
@@ -958,3 +957,5 @@ window.addEventListener('load', function() {
   iface.attach();
 });
 
+var log = chrome.app.window.current().contentWindow.log;
+log("starting log")

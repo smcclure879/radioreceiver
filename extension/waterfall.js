@@ -17,19 +17,25 @@ function WaterfallC(canvas) {
     if (!canvas)  {
       throw("err1214r: no canvas");
     }
-    debugger;
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.canvasData = this.ctx.createImageData(canvas.width, canvas.height);  //bugbug we won't support resize canvas for now!
+
+    this.canvas.onload = function() {
+        this.update();        
+    }
+
+
     return this;
 }
 
 
 WaterfallC.prototype.set = function(x,y,color) {
-    var index = (x + y * this.canvas.Width) * 4;
+    var index = (x + y * this.canvas.width) * 4;
     this.canvasData.data[index + 0] = color.r;
     this.canvasData.data[index + 1] = color.g;
     this.canvasData.data[index + 2] = color.b;
+    this.canvasData.data[index + 3] = 255;
     //we don't support transparency  canvasData.data[index + 3] = color.a;
 };
 
@@ -39,15 +45,15 @@ WaterfallC.prototype.update = function() {
 };
 
 WaterfallC.prototype.selfTest = function() {
-  var RED={ r:255, g:0, b:0 };
+  var GREEN={ r:0, g:255, b:0 };
     
   for(var x=10; x<100; x++) {
     for(var y=10; y<100; y++) {
-      this.set(x,y,RED);
+      this.set(x,y,GREEN);
     }
   }
     
-    this.update();
+  this.update();
 };
 
 

@@ -13,14 +13,33 @@
 // limitations under the License.
 
 chrome.app.runtime.onLaunched.addListener(function() {
-  chrome.app.window.create('interface.html', {
-    'id': 'radioTuner',
-    'bounds': {
-      'width': 800,
-      'height': 625
-    },
-    'resizable': true,
-    'frame': 'none'
-  });
+    var createWindowOptions = {
+        'id': 'radioTuner',
+        'bounds': {
+            'width': 800,
+            'height': 625
+        },
+        'resizable': true,
+        'frame': 'none'
+    };
+
+ 
+
+    function log(x) {
+        console.log(x);
+    }
+
+
+    var theWindow = null;
+    chrome.app.window.create('interface.html', createWindowOptions, function(createdWindow) {
+        theWindow = createdWindow;
+        theWindow.contentWindow.log=log;
+    });
+
+
 });
+
+
+
+
 
