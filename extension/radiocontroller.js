@@ -46,7 +46,7 @@ function RadioController() {
   var requestingBlocks = 0;
   var playingBlocks = 0;
   var mode = {};
-  var frequency = 88500000;
+  var frequency = 99900000;
   var actualFrequency = 0;
   var stereo = true;
   var stereoEnabled = true;
@@ -427,6 +427,7 @@ function RadioController() {
       if (state.state == STATE.PLAYING) {
         if (playingBlocks <= 2) {
           ++playingBlocks;
+          waterfall.process(data);  //ayvex
           decoder.postMessage(
               [0, data, stereoEnabled, actualFrequency - frequency], [data]);
         }

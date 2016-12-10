@@ -930,13 +930,8 @@ function Interface(fmRadio) {
     window.addEventListener('keypress', handleShortcut);
     fmRadio.setInterface(this);
     fmRadio.setOnError(showErrorWindow);
-
-    var q=new WaterfallC(waterfall);
-    q.selfTest();
     
-    function waterfallClick() {frequencyPlus()};
-    waterfall.addEventListener('click',waterfallClick);
-
+    
     loadSettings(function() {
       presets.load(displayPresets);
       presets.addListener(displayPresets);
@@ -953,9 +948,13 @@ function Interface(fmRadio) {
 var radio = new RadioController();
 var iface = new Interface(radio);
 
+var waterfall = null;
+
 window.addEventListener('load', function() {
   iface.attach();
+  waterfall=new WaterfallC(waterfallCanvas,radio);
+  //waterfall.selfTest();
 });
 
 var log = chrome.app.window.current().contentWindow.log;
-log("starting log")
+log("starting log");
