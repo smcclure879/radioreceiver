@@ -159,6 +159,11 @@ var Bands = (function() {
   }
 
   return {
+    'EB': {
+      'FM': new Band('FM', 80500000, 110000000, 100000, WBFM, fmDisplay, fmInput),
+      'WX': new Band('WX', 162400000, 162550000, 25000, WXFM, wxDisplay, wxInput),
+      'AM': new Band('AM', 540000, 1710000, 10000, AM, amDisplay, amInput)
+    },
     'WW': {
       'FM': new Band('FM', 87500000, 108000000, 100000, WBFM, fmDisplay, fmInput),
       'AM': new Band('AM', 531000, 1611000, 9000, AM, amDisplay, amInput)
