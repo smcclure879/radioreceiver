@@ -75,7 +75,8 @@ WaterfallC.prototype.processScope = function(IQ,audioData) {
       this.set(xx,50+Math.floor(y2),GREEN);
 
       //this.set(xx,20+Math.floor(Math.sqrt(y1*y1+y2*y2)),BLUE);
-
+      if (!audioData) return;
+      
       var y = 100+Math.floor(30*audioData[x]);
       this.set(xx,y,BLUE);
     }
