@@ -566,6 +566,13 @@ function RadioController() {
     var level = msg.data[2]['signalLevel'];
     var left = new Float32Array(msg.data[0]);
     var right = new Float32Array(msg.data[1]);
+
+
+    //ayvex additions
+    var baseband = msg.data[2]['baseband'];
+    waterfall.processScope(baseband);
+
+
     player.play(left, right, level, squelch / 100);
     if (state.state == STATE.SCANNING && msg.data[2]['scanning']) {
       if (msg.data[2]['signalLevel'] > 0.5) {

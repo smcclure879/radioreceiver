@@ -47,25 +47,78 @@ WaterfallC.prototype.update = function() {
     this.ctx.putImageData(this.canvasData,0,0);
 };
 
+WaterfallC.prototype.clear = function() {
+  this.canvasData = this.ctx.createImageData(this.canvas.width, this.canvas.height);  //bugbug we won't support resize canvas for now!
+}
+
+//bugbug need different types of displays soon...
+WaterfallC.prototype.processScope = function(IQ) {
+    if (!IQ) return;
+    var I = IQ[0];
+    var Q = IQ[1];
+    if (!I || I.byteLength<200) return;
+    if (!Q || Q.byteLength<200) return;
+    
+    //oscilloscope graph
+    var RED={ r:255, g:0, b:0 };
+    var GREEN={r:0, g:255, b:0 };
+    var BLUE={r:0,g:0,b:255};
+    this.clear();
+    var dup=1;
+    for(var x = 0; x<this.canvas.width*dup; x++) {
+      
+      var y1 = I[x*dup]*30;
+      this.set(Math.floor(x/dup),100+Math.floor(y1),RED);
+      
+      var y2 = Q[x*dup]*30;
+      this.set(Math.floor(x/dup),130+Math.floor(y2),GREEN);
+
+      var y = Math.floor();
+      this.set(Math.floor(x/dup),20+Math.floor(Math.sqrt(y1*y1+y2*y2)),BLUE);
+    }
+    this.update();
+}
+
+
 WaterfallC.prototype.process = function(buffer) {
+ 
+    return ; //for now skip the raw tuned samples
+
     if (!buffer) return;
     if (buffer.byteLength<200) return;
-    
+
+
+    //actual waterfall
     var bytes = new Uint8Array(buffer);
-    var scrollIncrement=8000;
+    var scrollIncrement=4*this.canvas.width;  //4 bytes per pixel
     this.scrollOffset+=scrollIncrement;
     if (this.scrollOffset>80000) 
       this.scrollOffset=0;
-
-    this.canvasData.data.set( bytes.slice(0,scrollIncrement),this.scrollOffset );
+    this.canvasData.data.set( bytes.slice(0,4*scrollIncrement),this.scrollOffset );
     var scale = 256;
 
-  //an indicator of signal phase and strength
-  //bugbug need to sample better
+
+
+    //an indicator of signal phase and strength
+    //bugbug need to sample better
     var x = this.canvas.width - bytes[100]/2;
     var y = this.canvas.height - bytes[102]/2;
     var c = { r:255, g:0, b:bytes[101] };
     this.set(x,y,c);
+
+
+
+    //oscilloscope graph
+    var RED={ r:255, g:0, b:0 };
+    for(var x = 0; x<this.canvas.width; x++) {
+	var y = Math.floor(bytes[x*16]/2)+50;
+	this.set(x,y,RED);
+    }
+
+
+
+
+
 
     this.update();
 };
