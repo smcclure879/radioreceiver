@@ -570,7 +570,7 @@ function RadioController() {
 
     //ayvex additions
     var baseband = msg.data[2]['baseband'];
-    waterfall.processScope(baseband);
+    waterfall.processScope(baseband,left);
 
 
     player.play(left, right, level, squelch / 100);

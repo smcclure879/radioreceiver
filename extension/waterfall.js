@@ -52,7 +52,7 @@ WaterfallC.prototype.clear = function() {
 }
 
 //bugbug need different types of displays soon...
-WaterfallC.prototype.processScope = function(IQ) {
+WaterfallC.prototype.processScope = function(IQ,audioData) {
     if (!IQ) return;
     var I = IQ[0];
     var Q = IQ[1];
@@ -64,17 +64,20 @@ WaterfallC.prototype.processScope = function(IQ) {
     var GREEN={r:0, g:255, b:0 };
     var BLUE={r:0,g:0,b:255};
     this.clear();
-    var dup=1;
+    var dup=3;
     for(var x = 0; x<this.canvas.width*dup; x++) {
+      var xx=Math.floor(x/dup);
       
-      var y1 = I[x*dup]*30;
-      this.set(Math.floor(x/dup),100+Math.floor(y1),RED);
+      var y1 = I[x]*30;
+      this.set(xx,30+Math.floor(y1),RED);
       
-      var y2 = Q[x*dup]*30;
-      this.set(Math.floor(x/dup),130+Math.floor(y2),GREEN);
+      var y2 = Q[x]*30;
+      this.set(xx,50+Math.floor(y2),GREEN);
 
-      var y = Math.floor();
-      this.set(Math.floor(x/dup),20+Math.floor(Math.sqrt(y1*y1+y2*y2)),BLUE);
+      //this.set(xx,20+Math.floor(Math.sqrt(y1*y1+y2*y2)),BLUE);
+
+      var y = 100+Math.floor(30*audioData[x]);
+      this.set(xx,y,BLUE);
     }
     this.update();
 }

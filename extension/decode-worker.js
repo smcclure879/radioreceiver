@@ -49,6 +49,8 @@ function Decoder() {
     IQ = shiftFrequency(IQ, freqOffset, IN_RATE, cosine, sine);
     cosine = IQ[2];
     sine = IQ[3];
+    //ayvex...
+    //unfortunately the shiftFrequency didn't give us frequency outut...
     var out = demodulator.demodulate(IQ[0], IQ[1], inStereo);
     data['stereo'] = out['stereo'];
     data['signalLevel'] = out['signalLevel'];
