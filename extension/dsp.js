@@ -549,6 +549,26 @@ function iqSamplesFromUint8(buffer, rate) {
 }
 
 /**
+ * Converts the given buffer of unsigned 8-bit samples into a pair of 32-bit
+ *     floating-point sample streams.
+ * @param {ArrayBuffer} buffer A buffer containing the unsigned 8-bit samples.
+ * @param {number} rate The buffer's sample rate.
+ * @return {Array.<Float32Array>} An array that contains first the I stream
+ *     and next the Q stream.
+ */
+function iqSamples(buffer, rate) {
+  var arr = buffer;
+  var len = arr.byteLength / 2;
+  var outI = new Float32Array(len);
+  var outQ = new Float32Array(len);
+  for (var i = 0; i < len; ++i) {
+    outI[i] = arr[2 * i] / 128 - 0.995;
+    outQ[i] = arr[2 * i + 1] / 128 - 0.995;
+  }
+  return [outI, outQ];
+}
+
+/**
  * Shifts a series of IQ samples by a given frequency.
  * @param {Array.<Float32Array>} IQ An array containing the I and Q streams.
  * @param {number} freq The frequency to shift the samples by.

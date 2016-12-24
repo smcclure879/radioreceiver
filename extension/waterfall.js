@@ -21,6 +21,8 @@ function WaterfallC(canvas,radio) {
     this.ctx = canvas.getContext('2d');
     this.canvasData = this.ctx.createImageData(canvas.width, canvas.height);  //bugbug we won't support resize canvas for now!
 
+    this.sampleSaver = new sampleSaverC(1024*1024,"text","foo.txt");  //note: lazy file open
+
     this.scrollOffset = 0;
 
     //bugbug needed??
@@ -32,6 +34,76 @@ function WaterfallC(canvas,radio) {
 
     return this;
 }
+
+
+WaterfallC.prototype.graph = function(arrayOfComplexFloats) {
+  var w=this.canvas.width;
+  var h=this.canvas.height;
+  
+  var arr = arrayOfComplexFloats;
+  var size = arr.length;
+  for(var ii=0; ii<size; ii++) {
+    var x = Math.floor(ii/size * w);
+    var yi = Math.floor(h - arr[ii][0]-20);
+    var yq = Math.floor(h - arr[ii][1]-50);
+    this.set(x,yi,{r:255,g:0,b:0});
+    this.set(x,yq,{r:0,g:200,b:100});
+  }
+  this.update();
+}
+
+
+
+WaterfallC.prototype.debugCode=function(evt) {
+  //build a sine wave signal and FFT it and display (while waterfall otherwise off)
+
+  var TwoPi = 6.28; //bugbug
+
+  //fake duration = 1 second
+  var freq = 5000;  // fake baseband
+  var size = 1024*1024;
+  var fakeSignal = new ArrayBuffer(size*2);  //I & Q samples
+
+  
+  //samples come out of radio interleaved, so we dup that functionality
+  for(var ii = 0; ii<size; ii++) {
+    var theta = TwoPi * freq * ii / size;
+    fakeSignal[ii*2] = fakeSin(theta);
+    fakeSignal[ii*2+1] = fakeCos(theta);
+  }
+
+  //and the functionality of splitting them from dsp
+  var IQ=iqSamples(fakeSignal); 
+
+
+
+  var INTER_RATE = size;  //samples per second
+  var outRate = size/128;  //samples per second
+
+
+  //note.........
+  // * @param {number} sampleRate The signal's sample rate.
+  // * @param {number} halfAmplFreq The half-amplitude frequency in Hz.
+  // * @param {number} length The filter kernel's length. Should be an odd number.
+  var filterCoefs = getLowPassFIRCoeffs(INTER_RATE, 10000, 31);      // * @return {Float32Array} The FIR coefficients for the filter.
+  var fftDown = new Downsampler(INTER_RATE, outRate, filterCoefs);
+
+  var smallBufferI = fftDown.downsample(IQ[0]);
+  //var smallBufferQ = fftDown.downsample(IQ[1]);
+  
+
+  //actual waterfall
+  var freqs = fft.fft(smallBufferI);    //,smallBufferQ);
+
+  this.graph(freqs);
+
+}
+
+function fakeSin(theta){return Math.floor(127*Math.sin(theta)+128);}
+function fakeCos(theta){return Math.floor(127*Math.cos(theta)+128);}
+
+
+
 
 
 WaterfallC.prototype.set = function(x,y,color) {
@@ -53,6 +125,10 @@ WaterfallC.prototype.clear = function() {
 
 //bugbug need different types of displays soon...
 WaterfallC.prototype.processScope = function(IQ,audioData) {
+
+    return ;  //skip this otherwise good code for now...
+
+  
     if (!IQ) return;
     var I = IQ[0];
     var Q = IQ[1];
@@ -83,17 +159,34 @@ WaterfallC.prototype.processScope = function(IQ,audioData) {
     this.update();
 }
 
-
 WaterfallC.prototype.process = function(buffer) {
- 
-    return ; //for now skip the raw tuned samples
+    //raw tuned samples
+
+    this.sampleSaver.go(buffer);
 
     if (!buffer) return;
     if (buffer.byteLength<200) return;
 
+    //var INTER_RATE = 48000;
+    //var outRate = 1024;
+    var INTER_RATE = 409600/2;  //samples per second
+    var outRate = 48000;  //samples per second
+
+
+    //note.........
+    // * @param {number} sampleRate The signal's sample rate.
+    // * @param {number} halfAmplFreq The half-amplitude frequency in Hz.
+    // * @param {number} length The filter kernel's length. Should be an odd number.
+    var filterCoefs = getLowPassFIRCoeffs(INTER_RATE, 10000, 41);      // * @return {Float32Array} The FIR coefficients for the filter.
+    var fftDown = new Downsampler(INTER_RATE, outRate, filterCoefs);
+
+    var smallBuffer = fftDown.downsample(buffer);//bugbug you are here ... this should be array, not array buffer
+
 
     //actual waterfall
-    var bytes = new Uint8Array(buffer);
+    var bytes = new Uint8Array(smallBuffer);
+    var freqs = fft.fft(bytes);
+
     var scrollIncrement=4*this.canvas.width;  //4 bytes per pixel
     this.scrollOffset+=scrollIncrement;
     if (this.scrollOffset>80000) 
@@ -102,26 +195,12 @@ WaterfallC.prototype.process = function(buffer) {
     var scale = 256;
 
 
-
-    //an indicator of signal phase and strength
-    //bugbug need to sample better
-    var x = this.canvas.width - bytes[100]/2;
-    var y = this.canvas.height - bytes[102]/2;
-    var c = { r:255, g:0, b:bytes[101] };
-    this.set(x,y,c);
-
-
-
     //oscilloscope graph
     var RED={ r:255, g:0, b:0 };
     for(var x = 0; x<this.canvas.width; x++) {
-	var y = Math.floor(bytes[x*16]/2)+50;
+	var y = Math.floor(freqs[x*16]/2)+50;
 	this.set(x,y,RED);
     }
-
-
-
-
 
 
     this.update();

@@ -105,13 +105,22 @@ option {
   position:absolute;
   top:30px;
   left:530px;
-  background-color: #109;
+  width: 600px;
+  height: 600px;
+  background-color: #10f;
 }
 
 
+.debugButton {
+  position: absolute;
+  top: 600px;
+  width: 10px;
+  height: 100px;
+}
 
 
 .waterfall {
+  position:absolute;
   width:512px;
   height:512px;
   background-color:black;
@@ -464,4 +473,8 @@ option {
   top: 25px;
   bottom: 0;
   width: 70px;
+}
+
+
+
 }

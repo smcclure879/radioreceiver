@@ -17,7 +17,11 @@ limitations under the License.
 <head>
 <title>Radio Receiver</title>
 <link rel="stylesheet" href="interface.css">
+
+<script src="dsp.js"></script>
+
 <script src="wavsaver.js"></script>
+<script src="sampleSaver.js"></script>
 <script src="audio.js"></script>
 <script src="rtlcom.js"></script>
 <script src="r820t.js"></script>
@@ -27,8 +31,15 @@ limitations under the License.
 <script src="frequencies.js"></script>
 <script src="presets.js"></script>
 <script src="appconfig.js"></script>
+
+<script src="fft/complex.js"></script>
+<script src="fft/fftutil.js"></script>
+<script src="fft/fft.js"></script>
+<script src="fft/ifft.js"></script>
 <script src="waterfall.js"></script>
+
 <script src="interface.js"></script>
+
 </head>
 
 <body>
@@ -46,9 +57,11 @@ limitations under the License.
 
 
 <div id="annex" class="annex" >
+  <button id="debugButton" title="ayvex debug">debug button</button>
   <canvas id="waterfallCanvas" class="waterfall" title="waterfall" tabindex="77">
 waterfall
   </canvas>
+  
 </div>
 
 

@@ -22,7 +22,7 @@ function RtlCom(conn) {
   /**
    * Whether to log all USB transfers.
    */
-  var VERBOSE = false;
+  var VERBOSE = true;
 
   /**
    * Set in the control messages' index field for write operations.

@@ -106,6 +106,7 @@ function Interface(fmRadio) {
     setVisible(recordButton, !fmRadio.isRecording());
     setVisible(stopButton, fmRadio.isRecording());
 
+    
     selectCurrentPreset();
   }
 
@@ -928,6 +929,9 @@ function Interface(fmRadio) {
     window.addEventListener('message', getMessage);
     window.addEventListener('keydown', handleShortcut);
     window.addEventListener('keypress', handleShortcut);
+
+    debugButton.addEventListener('click',debugCode);
+
     fmRadio.setInterface(this);
     fmRadio.setOnError(showErrorWindow);
     
@@ -944,6 +948,14 @@ function Interface(fmRadio) {
     update: update
   };
 }
+
+
+function debugCode(evt) {
+    waterfall.debugCode(evt);
+      
+}
+
+
 
 var radio = new RadioController();
 var iface = new Interface(radio);

@@ -417,7 +417,7 @@ function RadioController() {
   /**
    * PLAYING state. Reads a block of samples from the tuner and plays it.
    *
-   * 2 blocks are in flight all at times, so while one block is being
+   * 2 blocks are in flight at all times, so while one block is being
    * demodulated and played, the next one is already being sampled.
    */
   function statePlaying() {
