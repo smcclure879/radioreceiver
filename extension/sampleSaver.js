@@ -1,4 +1,6 @@
-// Copyright 2014 Google Inc. All rights reserved.
+// Copyright 2016-7 AyvexLLC Inc. All rights reserved.
+//
+// Started from google code, under this same license
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,20 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//major modifications by ayvex also under copyright, and goverened by this license, by ayvexLLC 2016-2017
 
-
-/**
- * Classes to save a file of raw samples 
- *
- * The FileSystem API doesn't buffer writes, so this class implements just waits 
- * and writes everything at the end (when enough samples acquired)
- * @param {FileEntry} fileEntry An entry for the output file.
- * @constructor
- */
 //  e.g.     mySampleSaver = new SampleSaverC(1024*1024,"text","foo.txt");
+
+
+
 function sampleSaverC(samplesToStore,mode,filePath){
-    //function SaverC(fileEntry) {
 
     this.fileEntry=null;
     this.fileWriter=null;
@@ -33,17 +27,30 @@ function sampleSaverC(samplesToStore,mode,filePath){
     this.samplesToStore=samplesToStore;
     this.samplesWritten=0;
     this.filePath = filePath;
-    this.state = "new"; // new-->opened/writing-->closed  or error:details
+
+    //bugbug what??  showError('');
+    var opt = {
+		type: 'saveFile',
+		suggestedName: filePath
+    };
+    var that = this;
+    chrome.fileSystem.chooseEntry(opt, function(fileEntry) {
+		that.fileEntry = fileEntry;
+		fileEntry.createWriter(function(writer) {
+		    writer.onerror = that.processError;
+	    	that.fileWriter = writer;
+		});
+    });
 }
 
 
 //s = sampleBufffer;  //everywhere!!!
 sampleSaverC.prototype.go = function (s) {
-    switch (this.state) {
-    case 'new': this.handleNew(s); break;
-    case 'opened': this.handleOpen(s); break;
-    case 'closed': this.handleClosed(s); break;
-    default: return; //ignore error
+	if (this.fileWriter) {
+    	this.handleOpen(s);
+    } else {
+		log("bugbug103x");
+    	return; //ignore error
     }
 }
 
@@ -52,57 +59,53 @@ sampleSaverC.prototype.processError = function(err) {
     console.log("err1158:"+err);
 }
 
-sampleSaverC.prototype.initFileWriter = function(filePath,cb) {
 
-    if (this.fileEntry) 
-	return fileEntry;
-  
-    //bugbug what??  showError('');
-    var opt = {
-	type: 'saveFile',
-	suggestedName: filePath
-    };
-    chrome.fileSystem.chooseEntry(opt, function(fileEntry) {
-	this.fileEntry = fileEntry;
-	fileEntry.createWriter(function(writer) {
-	    writer.onerror = this.processError;
-	    this.fileWriter = writer;
-	    this.state = 'opened';
-	    cb();
-	});
-    });
-}
-
-
-
-sampleSaverC.prototype.handleNew = function(s) {
-    this.initFileWriter(this.filePath,function(){
-	this.go(s);	
-    });
-}
-
-
-sampleSaverC.prototype.handleOpen = function(s) {
-    if (this.state != 'opened') 
-	return;
-
-    this.write(s);
-}
-
-sampleSaverC.prototype.write = function(s,cb) {
+sampleSaverC.prototype.write = function(s) {
+	var that = this;
     this.fileWriter.onwriteend=function(){
-	this.samplesWritten += s.length * 2; //bugbug check fudge factor 2 bytes per sample??
-	if (this.samplesWritten >= this.samplesToStore) {
-	    this.fileWriter.truncate(this.samplesToStore);
-	    this.state = 'closed';
-	}
-	if (cb) 
-	    cb();
+		that.samplesWritten += s.length * 2; //bugbug check fudge factor 2 bytes per sample??
+		if (that.samplesWritten >= that.samplesToStore) {
+	    	that.fileWriter.truncate(that.samplesToStore);
+	    	that.state = 'closed';
+		}
     }
-
 
     this.fileWriter.write(new Blob([s]));
 }
 
 
 
+sampleSaverC.prototype.handleOpen = function(s) {
+	this.write(s);
+}
+
+
+
+
+sampleSaverC.prototype.useFileSamples = function() {
+	var me = this;
+    var opt = {
+		type: 'openFile',
+		suggestedName: this.filePath
+    };
+
+
+		//var reader = new FileReader();
+		//reader.onload=function(evt) {
+			//var fileBlob = reader.result;
+			
+			//bugbug needed???
+
+    me.fileEntry.file(function(file){
+
+
+		var reader = new FileReader();
+		reader.addEventListener("loadend", function(evt) {
+			// reader.result contains the contents of blob as a typed array
+			var stuff = reader.result;
+			waterfall.fftGraph(stuff,stuff.byteLength/80);  //bugbug fudge factor
+		});
+		reader.readAsArrayBuffer(file);
+
+	});
+}

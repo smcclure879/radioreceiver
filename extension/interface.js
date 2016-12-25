@@ -931,6 +931,7 @@ function Interface(fmRadio) {
     window.addEventListener('keypress', handleShortcut);
 
     debugButton.addEventListener('click',debugCode);
+    sampleSaverButton.addEventListener('click',useSavedSamples);
 
     fmRadio.setInterface(this);
     fmRadio.setOnError(showErrorWindow);
@@ -952,7 +953,10 @@ function Interface(fmRadio) {
 
 function debugCode(evt) {
     waterfall.debugCode(evt);
-      
+}
+
+function useSavedSamples(evt) {
+  waterfall.sampleSaver.useFileSamples();
 }
 
 

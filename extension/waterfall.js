@@ -27,7 +27,7 @@ function WaterfallC(canvas,radio) {
 
     //bugbug needed??
     this.canvas.onload = function() {
-        this.update();        
+        this.update();
     }
 
     this.radio = radio;
@@ -40,14 +40,36 @@ WaterfallC.prototype.graph = function(arrayOfComplexFloats) {
   var w=this.canvas.width;
   var h=this.canvas.height;
   
-  var arr = arrayOfComplexFloats;
+  
+  var arr = arrayOfComplexFloats;  //2d array!!
   var size = arr.length;
+  var ox=0;
+  var toti=0;
+  var totq=0;
   for(var ii=0; ii<size; ii++) {
     var x = Math.floor(ii/size * w);
-    var yi = Math.floor(h - arr[ii][0]-20);
-    var yq = Math.floor(h - arr[ii][1]-50);
-    this.set(x,yi,{r:255,g:0,b:0});
-    this.set(x,yq,{r:0,g:200,b:100});
+
+
+    var sampi = arr[ii][0]/40;
+    var sampq = arr[ii][1]/40;
+
+    sampi = sampi*sampi;
+    sampq = sampq*sampq;
+
+    toti += sampi;
+    totq += sampq;
+
+
+    if (x!=ox) {
+      var yi = Math.floor(h - toti/40-20);
+      var yq = Math.floor(h - totq/40-50);
+      this.set(ox,yi,{r:255,g:0,b:0});
+      this.set(ox,yq,{r:0,g:200,b:100});
+      this.set(ox,yi+yq-110,{r:228,g:228,b:0});
+      toti=0;
+      totq=0;
+    }
+    ox = x;
   }
   this.update();
 }
@@ -72,9 +94,16 @@ WaterfallC.prototype.debugCode=function(evt) {
     fakeSignal[ii*2+1] = fakeCos(theta);
   }
 
-  //and the functionality of splitting them from dsp
-  var IQ=iqSamples(fakeSignal); 
 
+  this.fftGraph(fakeSignal,size);
+}
+
+
+//expects signal to be interleaved IQ bytes, size = number of samples ( 1I + 1Q = 1sample )
+WaterfallC.prototype.fftGraph=function(signal,size){
+
+  //and the functionality of splitting them from dsp
+  var IQ=iqSamplesFromUint8(signal); 
 
 
   var INTER_RATE = size;  //samples per second
@@ -89,15 +118,17 @@ WaterfallC.prototype.debugCode=function(evt) {
   var fftDown = new Downsampler(INTER_RATE, outRate, filterCoefs);
 
   var smallBufferI = fftDown.downsample(IQ[0]);
-  //var smallBufferQ = fftDown.downsample(IQ[1]);
-  
+  //var smallBufferQ = fftDown.downsample(IQ[1]);  //bugbug
+  //bugbug and need to convert the two into N*2 2d array
 
-  //actual waterfall
-  var freqs = fft.fft(smallBufferI);    //,smallBufferQ);
+  smallBufferI = smallBufferI.slice(0,64*1024);
+
+  //actual FFT, bugbug need to adjust it to take Q signals also
+  var freqs = fft.fft(smallBufferI);    //,smallBufferQ);  
 
   this.graph(freqs);
-
 }
+
 
 function fakeSin(theta){return Math.floor(127*Math.sin(theta)+128);}
 function fakeCos(theta){return Math.floor(127*Math.cos(theta)+128);}
@@ -162,11 +193,13 @@ WaterfallC.prototype.processScope = function(IQ,audioData) {
 WaterfallC.prototype.process = function(buffer) {
     //raw tuned samples
 
-    this.sampleSaver.go(buffer);
-
     if (!buffer) return;
     if (buffer.byteLength<200) return;
 
+    this.sampleSaver.go(buffer);
+    return;  //bugbug rest of this code isn't right yet'
+
+    
     //var INTER_RATE = 48000;
     //var outRate = 1024;
     var INTER_RATE = 409600/2;  //samples per second
@@ -205,6 +238,17 @@ WaterfallC.prototype.process = function(buffer) {
 
     this.update();
 };
+
+
+
+
+
+
+
+
+
+
+
 
 
 WaterfallC.prototype.selfTest = function() {
