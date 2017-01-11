@@ -61,11 +61,10 @@ WaterfallC.prototype.graph = function(arrayOfComplexFloats) {
 
 
     if (x!=ox) {
-      var yi = Math.floor(h - toti/40-20);
-      var yq = Math.floor(h - totq/40-50);
+      var yi = Math.floor(h - toti/30-20);
+      var yq = Math.floor(h - totq/30-50);
       this.set(ox,yi,{r:255,g:0,b:0});
       this.set(ox,yq,{r:0,g:200,b:100});
-      this.set(ox,yi+yq-110,{r:228,g:228,b:0});
       toti=0;
       totq=0;
     }
